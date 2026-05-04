@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Authorization callback — BrokenStone Valley</title>
+<style>
+  body { font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; max-width: 640px; margin: 4rem auto; padding: 0 1.5rem; color: #1a1a1a; line-height: 1.55; }
+  h1 { font-weight: 600; letter-spacing: -0.02em; }
+  .box { background: #f4f4f5; border-radius: 8px; padding: 1rem 1.25rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.95rem; word-break: break-all; margin: 1rem 0; }
+  .ok { background: #ecfdf5; }
+  .err { background: #fef2f2; color: #991b1b; }
+  button { font: inherit; padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #d4d4d8; background: white; cursor: pointer; }
+  button:hover { background: #f4f4f5; }
+  .small { color: #666; font-size: 0.9rem; }
+  code { background: #f4f4f5; padding: 0.1rem 0.35rem; border-radius: 4px; }
+</style>
+</head>
+<body>
+  <h1>Authorization callback</h1>
+  <div id="result">Reading authorization response…</div>
+
+  <p class="small" style="margin-top:2rem">Paste the <strong>authorization code</strong> back into the CLI prompt.
+  This page is served only by GitHub Pages and never sees your tokens.</p>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const state = params.get("state");
+      const error = params.get("error");
+      const errorDescription = params.get("error_description");
+      const out = document.getElementById("result");
+
+      function copy(text) {
+        navigator.clipboard.writeText(text).then(
+          () => { document.getElementById("copybtn").textContent = "Copied ✓"; },
+          () => {}
+        );
+      }
+
+      if (error) {
+        out.innerHTML = '<div class="box err"><strong>Error: ' + error + '</strong>'
+          + (errorDescription ? '<br>' + errorDescription : '') + '</div>';
+        return;
+      }
+
+      if (!code) {
+        out.innerHTML = '<div class="box err">No <code>code</code> parameter found in the URL.</div>';
+        return;
+      }
+
+      let html = '<p>Authorization code:</p>'
+        + '<div class="box ok" id="codebox">' + code + '</div>'
+        + '<button id="copybtn">Copy code</button>';
+      if (state) {
+        html += '<p class="small" style="margin-top:1.5rem">State: <code>' + state + '</code></p>';
+      }
+      out.innerHTML = html;
+
+      document.getElementById("copybtn").addEventListener("click", function () {
+        copy(code);
+      });
+    })();
+  </script>
+</body>
+</html>
